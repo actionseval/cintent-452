@@ -1,0 +1,11 @@
+name: otter-grader
+channels: 
+    - conda-forge
+    - defaults
+dependencies:
+    - python>=3.9
+    - r-base>=4.0.0
+    - r-essentials
+    - r-devtools
+    - pip
+    - nb_conda_kernels

@@ -1,0 +1,62 @@
+name: Check formatting
+
+# CINTENT >> MANUAL_TRIGGER
+# on:
+#   push:
+#     branches:
+#       - master
+#       - beta
+#       - release
+#   pull_request:
+#     branches:
+#       - master
+#       - beta
+#       - release
+#       - temp
+#   workflow_dispatch:
+on: [repository_dispatch, workflow_dispatch]
+
+jobs:
+  build:
+    name: Check formatting
+    runs-on: ubuntu-latest
+    env:
+      TAR: /bin/tar
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+      - uses: actions/checkout@v4
+
+      # CINTENT >> INSERT_CINTENT
+      - uses: JavidDitty/setup-cintent@a606c80c34ec190c6a20dea33d6d58ddb6c4e0cc
+
+      - name: Set up python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+          virtualenvs-path: .venv
+          installer-parallel: true
+
+      - name: Install dependencies
+        run: |
+          poetry install --with dev --no-root
+
+      - name: Run formatters
+        run: |
+          source .venv/bin/activate
+          make format CI=true
+
+      # CINTENT >> INSERT_CINTENT
+      - name: Upload CIntent Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ${{ env.CINTENT_ARTIFACT_NAME }}
+          path: ${{ env.CINTENT_LOGS }}
